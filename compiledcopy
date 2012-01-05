@@ -1,0 +1,18 @@
+#cleanup
+if [ -e ../compiled ];
+then
+rm -r ../compiled;
+fi;
+
+#packageprep
+if [ ! -e ../ACAKernels ]; then mkdir ../ACAKernels; fi;
+
+if [ ! -e ../compiled ]; then
+mkdir ../compiled ../compiled/modules;
+fi;
+
+#packaging
+cp ./arch/arm/boot/zImage ../compiled/zImage
+cp ./drivers/net/wireless/bcm4329/bcm4329.ko ../compiled/modules/
+
+

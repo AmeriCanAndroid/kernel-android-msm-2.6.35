@@ -1,0 +1,37 @@
+#!/bin/sh
+## last updated jan 02 2012
+
+echo "###_root access check";
+touch /root/.accesstest;
+if [ ! -e /root/.accesstest ]; then echo "###_you must be logged in as root to continue"; exit; fi;
+
+hn=`hostname`
+
+# evaluate warren or cope toolchain location
+if [ $hn = "VBOX-ACA" ];
+    then tcloc="/opt/codesourcery/arm2010950"; #cause warren is special
+    else tcloc="/root/CodeSourcery/Sourcery_G++_Lite"; #everyone else who installs to default locations
+fi ;
+
+# did we inclde clean in the command line
+if [ "$1" = "clean" ]; then
+    cleaning="make ARCH=arm CROSS_COMPILE=$tcloc/bin/arm-none-linux-gnueabi- clean";
+    echo "###_clean switch included";
+    $cleaning;
+    exit;
+else
+    cleaning="";
+fi;
+
+make ARCH=arm htc_shooteru_defconfig
+make ARCH=arm CROSS_COMPILE=$tcloc/bin/arm-none-linux-gnueabi- zImage -j6
+make ARCH=arm CROSS_COMPILE=$tcloc/bin/arm-none-linux-gnueabi- modules -j6
+
+./compiledcopy
+
+git log > ../compiled/currentrelease.txt
+tar cvzf ../"ACA8660CM35`date +"%m%d%y%H%M"`".tar.gz ../compiled/
+
+if [ ! -e ../ACAKernels/ ]; then mkdir ../ACAKernels ]; fi;
+mv ../ACA8660CM* ../ACAKernels
+
